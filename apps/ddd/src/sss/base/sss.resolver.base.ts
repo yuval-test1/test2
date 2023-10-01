@@ -26,6 +26,7 @@ import { SssCountArgs } from "./SssCountArgs";
 import { SssFindManyArgs } from "./SssFindManyArgs";
 import { SssFindUniqueArgs } from "./SssFindUniqueArgs";
 import { Sss } from "./Sss";
+import { User } from "../../user/base/User";
 import { SssService } from "../sss.service";
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Sss)
@@ -86,7 +87,15 @@ export class SssResolverBase {
   async createSss(@graphql.Args() args: CreateSssArgs): Promise<Sss> {
     return await this.service.create({
       ...args,
-      data: args.data,
+      data: {
+        ...args.data,
+
+        uSer: args.data.uSer
+          ? {
+              connect: args.data.uSer,
+            }
+          : undefined,
+      },
     });
   }
 
@@ -101,7 +110,15 @@ export class SssResolverBase {
     try {
       return await this.service.update({
         ...args,
-        data: args.data,
+        data: {
+          ...args.data,
+
+          uSer: args.data.uSer
+            ? {
+                connect: args.data.uSer,
+              }
+            : undefined,
+        },
       });
     } catch (error) {
       if (isRecordNotFoundError(error)) {
@@ -130,5 +147,24 @@ export class SssResolverBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @graphql.ResolveField(() => User, {
+    nullable: true,
+    name: "uSer",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "read",
+    possession: "any",
+  })
+  async resolveFieldUSer(@graphql.Parent() parent: Sss): Promise<User | null> {
+    const result = await this.service.getUSer(parent.id);
+
+    if (!result) {
+      return null;
+    }
+    return result;
   }
 }

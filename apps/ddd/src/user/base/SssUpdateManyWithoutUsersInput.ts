@@ -10,35 +10,37 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { InputType, Field } from "@nestjs/graphql";
+import { SssWhereUniqueInput } from "../../sss/base/SssWhereUniqueInput";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsOptional, ValidateNested } from "class-validator";
-import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
-import { Type } from "class-transformer";
 
 @InputType()
-class SssUpdateInput {
-  @ApiProperty({
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  @Field(() => String, {
+class SssUpdateManyWithoutUsersInput {
+  @Field(() => [SssWhereUniqueInput], {
     nullable: true,
   })
-  newField?: string | null;
+  @ApiProperty({
+    required: false,
+    type: () => [SssWhereUniqueInput],
+  })
+  connect?: Array<SssWhereUniqueInput>;
 
-  @ApiProperty({
-    required: false,
-    type: () => UserWhereUniqueInput,
-  })
-  @ValidateNested()
-  @Type(() => UserWhereUniqueInput)
-  @IsOptional()
-  @Field(() => UserWhereUniqueInput, {
+  @Field(() => [SssWhereUniqueInput], {
     nullable: true,
   })
-  uSer?: UserWhereUniqueInput | null;
+  @ApiProperty({
+    required: false,
+    type: () => [SssWhereUniqueInput],
+  })
+  disconnect?: Array<SssWhereUniqueInput>;
+
+  @Field(() => [SssWhereUniqueInput], {
+    nullable: true,
+  })
+  @ApiProperty({
+    required: false,
+    type: () => [SssWhereUniqueInput],
+  })
+  set?: Array<SssWhereUniqueInput>;
 }
 
-export { SssUpdateInput as SssUpdateInput };
+export { SssUpdateManyWithoutUsersInput as SssUpdateManyWithoutUsersInput };

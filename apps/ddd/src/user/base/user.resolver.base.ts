@@ -26,6 +26,8 @@ import { UserCountArgs } from "./UserCountArgs";
 import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserFindUniqueArgs } from "./UserFindUniqueArgs";
 import { User } from "./User";
+import { SssFindManyArgs } from "../../sss/base/SssFindManyArgs";
+import { Sss } from "../../sss/base/Sss";
 import { UserService } from "../user.service";
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => User)
@@ -130,5 +132,25 @@ export class UserResolverBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @graphql.ResolveField(() => [Sss], { name: "ssses" })
+  @nestAccessControl.UseRoles({
+    resource: "Sss",
+    action: "read",
+    possession: "any",
+  })
+  async resolveFieldSsses(
+    @graphql.Parent() parent: User,
+    @graphql.Args() args: SssFindManyArgs
+  ): Promise<Sss[]> {
+    const results = await this.service.findSsses(parent.id, args);
+
+    if (!results) {
+      return [];
+    }
+
+    return results;
   }
 }

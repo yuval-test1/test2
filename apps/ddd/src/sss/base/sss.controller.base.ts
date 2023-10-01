@@ -48,12 +48,26 @@ export class SssControllerBase {
   })
   async create(@common.Body() data: SssCreateInput): Promise<Sss> {
     return await this.service.create({
-      data: data,
+      data: {
+        ...data,
+
+        uSer: data.uSer
+          ? {
+              connect: data.uSer,
+            }
+          : undefined,
+      },
       select: {
         id: true,
         createdAt: true,
         updatedAt: true,
         newField: true,
+
+        uSer: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
@@ -79,6 +93,12 @@ export class SssControllerBase {
         createdAt: true,
         updatedAt: true,
         newField: true,
+
+        uSer: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
@@ -105,6 +125,12 @@ export class SssControllerBase {
         createdAt: true,
         updatedAt: true,
         newField: true,
+
+        uSer: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
     if (result === null) {
@@ -134,12 +160,26 @@ export class SssControllerBase {
     try {
       return await this.service.update({
         where: params,
-        data: data,
+        data: {
+          ...data,
+
+          uSer: data.uSer
+            ? {
+                connect: data.uSer,
+              }
+            : undefined,
+        },
         select: {
           id: true,
           createdAt: true,
           updatedAt: true,
           newField: true,
+
+          uSer: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
     } catch (error) {
@@ -174,6 +214,12 @@ export class SssControllerBase {
           createdAt: true,
           updatedAt: true,
           newField: true,
+
+          uSer: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
     } catch (error) {

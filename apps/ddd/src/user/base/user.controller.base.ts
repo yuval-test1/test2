@@ -27,6 +27,9 @@ import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
 import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserUpdateInput } from "./UserUpdateInput";
 import { User } from "./User";
+import { SssFindManyArgs } from "../../sss/base/SssFindManyArgs";
+import { Sss } from "../../sss/base/Sss";
+import { SssWhereUniqueInput } from "../../sss/base/SssWhereUniqueInput";
 
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
@@ -199,5 +202,107 @@ export class UserControllerBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @common.Get("/:id/ssses")
+  @ApiNestedQuery(SssFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Sss",
+    action: "read",
+    possession: "any",
+  })
+  async findManySsses(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Sss[]> {
+    const query = plainToClass(SssFindManyArgs, request.query);
+    const results = await this.service.findSsses(params.id, {
+      ...query,
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        newField: true,
+
+        uSer: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/ssses")
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "update",
+    possession: "any",
+  })
+  async connectSsses(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: SssWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      ssses: {
+        connect: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/ssses")
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "update",
+    possession: "any",
+  })
+  async updateSsses(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: SssWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      ssses: {
+        set: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/ssses")
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "update",
+    possession: "any",
+  })
+  async disconnectSsses(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: SssWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      ssses: {
+        disconnect: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
   }
 }

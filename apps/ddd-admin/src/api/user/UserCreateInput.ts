@@ -1,4 +1,5 @@
 import { InputJsonValue } from "../../types";
+import { SssCreateNestedManyWithoutUsersInput } from "./SssCreateNestedManyWithoutUsersInput";
 
 export type UserCreateInput = {
   firstName?: string | null;
@@ -6,4 +7,5 @@ export type UserCreateInput = {
   username: string;
   password: string;
   roles: InputJsonValue;
+  ssses?: SssCreateNestedManyWithoutUsersInput;
 };

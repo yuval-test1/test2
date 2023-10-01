@@ -5,4 +5,5 @@ export type SssOrderByInput = {
   createdAt?: SortOrder;
   updatedAt?: SortOrder;
   newField?: SortOrder;
+  uSerId?: SortOrder;
 };

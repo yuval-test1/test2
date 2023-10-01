@@ -44,12 +44,6 @@
   {
     "role": "user",
     "resource": "Sss",
-    "action": "read:own",
-    "attributes": "*"
-  },
-  {
-    "role": "user",
-    "resource": "Sss",
     "action": "delete:any",
     "attributes": "*"
   },

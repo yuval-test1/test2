@@ -16,6 +16,7 @@ model User {
   username  String   @unique
   password  String
   roles     Json
+  ssses     Sss[]
 }
 
 model Sss {
@@ -23,6 +24,8 @@ model Sss {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   newField  String?
+  uSer      User?    @relation(fields: [uSerId], references: [id])
+  uSerId    String?
 }
 
 model Vvv {
