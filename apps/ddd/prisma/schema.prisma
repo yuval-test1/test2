@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlserver"
   url      = env("DB_URL")
 }
 
@@ -24,7 +24,7 @@ model Sss {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   newField  String?
-  uSer      User?    @relation(fields: [uSerId], references: [id])
+  uSer      User?    @relation(fields: [uSerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   uSerId    String?
 }
 

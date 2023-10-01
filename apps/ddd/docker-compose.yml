@@ -11,13 +11,14 @@ services:
       BCRYPT_SALT: ${BCRYPT_SALT}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
+      DB_URL: "`sqlserver://db:1433;database=${DB_NAME};user=${DB_USER};password=${DB\
+        _PASSWORD};TrustServerCertificate=true`"
       JAEGER_AGENT_HOST: ${JAEGER_AGENT_HOST}
       JAEGER_AGENT_PORT: ${JAEGER_AGENT_PORT}
       OTEL_COLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
       OTEL_COLLECTOR_PORT_GRPC: ${OTEL_COLLECTOR_PORT_GRPC}
       OTEL_COLLECTOR_PORT_HTTP: ${OTEL_COLLECTOR_PORT_HTTP}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
-      DB_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
     depends_on:
       - redis
   migrate:
@@ -29,10 +30,43 @@ services:
     working_dir: /app/server
     environment:
       BCRYPT_SALT: ${BCRYPT_SALT}
-      DB_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      DB_URL: "`sqlserver://db:1433;database=${DB_NAME};user=${DB_USER};password=${DB\
+        _PASSWORD};TrustServerCertificate=true`"
     depends_on:
       db:
         condition: service_healthy
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - ${DB_PORT}:1433
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD}
+      ACCEPT_EULA: Y
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD
+        - /opt/mssql-tools/bin/sqlcmd
+        - -S
+        - localhost
+        - -U
+        - ${DB_USER}
+        - -P
+        - ${DB_PASSWORD}
+        - -Q
+        - SELECT 1
+        - -b
+        - -o
+        - /dev/null
+      timeout: 5s
+      interval: 10s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
@@ -60,24 +94,8 @@ services:
       - ${REDIS_PORT}:6379
     volumes:
       - redis:/data
-  db:
-    image: postgres:12
-    ports:
-      - ${DB_PORT}:5432
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - postgres:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}
-      timeout: 45s
-      interval: 10s
-      retries: 10
 volumes:
+  postgres: ~
+  mssql: ~
   redis:
     driver: local
-  postgres: ~
